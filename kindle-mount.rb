@@ -11,7 +11,7 @@ include Appscript
 
 app("BibDesk").document.save
 #a = File.open("/Volumes/Kindle/documents/My\ Clippings.txt")
-filename = ( ARGV[0] ? ARGV[0] : "/Volumes/Home/stian/src/folders2web/My Clippings.txt")
+filename = ( ARGV[0] ? ARGV[0] : "$RESEACHR_HOME/My Clippings.txt")
 a = File.open(filename)
 annotations = Hash.new
 

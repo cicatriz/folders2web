@@ -1,3 +1,3 @@
 #!/bin/sh
 
-ruby -KU /Volumes/Home/stian/src/folders2web/kindle-mount.rb
+ruby -KU $RESEARCHR_HOME/kindle-mount.rb
