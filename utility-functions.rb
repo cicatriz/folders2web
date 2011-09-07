@@ -5,6 +5,7 @@ Growl_path = "/usr/local/bin/growlnotify"
 #Wiki_path = "/wiki"
 #Wikimedia_path = "/wiki/data/media/pages"
 Home_path = "/Users/ramuller"
+Wiki_ext = "md"
 Wikipages_path = "#{Home_path}/code/researchwiki"
 Script_path = "#{Home_path}/code/folders2web"
 PDF_path = "#{Home_path}/Documents/PDFs"
@@ -95,9 +96,9 @@ def wikipage_selector(title, retfull = false, additional_code = "")
   # insert list of all wiki pages from filesystem into Pashua config
   Find.find(Wikipages_path) do |path|
     next unless File.file?(path)
-    fname = path[17..-5].gsub("/",":").gsub("_", " ")
+    fname = path.split(/[\.\/]/)[-2]
     idx = fname.index(":")
-    config << "cb.option = #{fname}\n" if (path[-4..-1] == ".txt" && path[0] != '_')
+    config << "cb.option = #{fname}\n" if (path.split('.')[-1] == "#{Wiki_ext}" && path[0] != '_')
   end
   pagetmp = pashua_run config
 
@@ -137,6 +138,14 @@ def dwpage(page, text, msg = "Automatically added text")
   tmp = Time.now.to_i.to_s
   File.write("/tmp/researcher-#{tmp}.tmp", text)
   `/wiki/bin/dwpage.php -m '#{msg}' commit "/tmp/researcher-#{tmp}.tmp" '#{page}'`
+end
+
+# wrapper around git-based wiki tool, inserts page 
+def gwpage(page, text, msg = "Automatically added text")
+  File.write("#{Wikipages_path}/#{page}.#{Wiki_ext}", text)
+  `cd #{Wikipages_path}`
+  `git add .`
+  `git commit -m "#{msg}"`
 end
 
 # properly format full name, extracted from bibtex
