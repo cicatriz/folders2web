@@ -6,18 +6,8 @@ require 'pp'
 require 'appscript'
 include Appscript
 
-#dt=app('Firefox')
-#title = dt.windows[1].get.tabs[dt.windows[1].get.active_tab_index.get].get.title.get
-
 # asks for a page name, and appends selected text on current page to that wiki page, with proper citation
-pagetmp = wikipage_selector("Which wikipage do you want to add text to?",true, "
-xb.type = checkbox
-xb.label = only insert link to this page
-xb.tooltip = Otherwise, it will take the currently selected text and insert
-fb.type = textbox
-fb.default = Title
-fb.label = Link title\n"
-)
+pagetmp = wikipage_selector("Which wikipage do you want to add text to?",true, "")
 
 
 exit if pagetmp["cancel"] == 1
@@ -26,19 +16,7 @@ pagename = pagetmp['cb'].strip
 pagepath = Wikipages_path + "/" + clean_pagename(pagename) + "." + Wiki_ext
 pagepath.gsub!(":","/")
 
-dt=app('Google Chrome')
-cururl = dt.windows[1].get.tabs[dt.windows[1].get.active_tab_index.get].get.URL.get
-curpage = cururl.split("/").last
-
 # format properly if citation
-if curpage.index("ref:")
-  curpage = "[@#{curpage.split(':').last}]" 
-elsif cururl.index("localhost/wiki")
-  curpage = "[[#{capitalize_word(curpage.gsub("_", " "))}]]"
-else
-  title = (pagetmp['fb'] == "" ? dt.windows[1].get.tabs[dt.windows[1].get.active_tab_index.get].get.title.get : pagetmp['fb'])
-  curpage ="[[#{cururl}|#{title}]]"
-end
 
 insert = (onlylink ? "  *" : utf8safe(pbpaste) )
 
@@ -55,7 +33,7 @@ else
   hr = ""
   growltext = "Selected text added to newly created #{pagename}"
 end
-filetext = f + hr + insert.gsub("\n","\n\n").gsub("\n\n\n","\n\n") + " " + curpage
+filetext = f + hr + insert.gsub("\n","\n\n").gsub("\n\n\n","\n\n") 
 
-dwpage(pagename, filetext)
+gwpage(pagename, filetext)
 growl("Text added", growltext)

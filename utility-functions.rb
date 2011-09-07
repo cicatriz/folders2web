@@ -143,9 +143,8 @@ end
 # wrapper around git-based wiki tool, inserts page 
 def gwpage(page, text, msg = "Automatically added text")
   File.write("#{Wikipages_path}/#{page}.#{Wiki_ext}", text)
-  `cd #{Wikipages_path}`
-  `git add .`
-  `git commit -m "#{msg}"`
+  `git --git-dir="#{Wikipages_path}/.git" --work-tree="#{Wikipages_path}" add #{page}.#{Wiki_ext}`
+  `git --git-dir="#{Wikipages_path}/.git" --work-tree="#{Wikipages_path}" commit -m "#{msg}"`
 end
 
 # properly format full name, extracted from bibtex
