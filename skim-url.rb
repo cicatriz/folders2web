@@ -3,7 +3,8 @@ require 'appscript'
 include Appscript
 require 'utility-functions'
 
-arg = ARGV[0][8..-1]
+#arg = ARGV[0][8..-1]
+arg = ARGV[0].split("/")[-1]
 if arg.index("%23")
   pdf, page_s = arg.split("%23")
   page = page_s.to_i

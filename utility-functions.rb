@@ -3,12 +3,13 @@
 # constants
 Growl_path = "/usr/local/bin/growlnotify"
 #Wiki_path = "/wiki"
-#Wikimedia_path = "/wiki/data/media/pages"
 Home_path = "/Users/ramuller"
 Wiki_ext = "md"
 Wikipages_path = "#{Home_path}/code/researchwiki"
+Wikimedia_path = "#{Wikipages_path}/pics"
+Wiki_url = "http://localhost:4567/"
 Script_path = "#{Home_path}/code/folders2web"
-PDF_path = "#{Home_path}/Documents/PDFs"
+PDF_path = "#{Home_path}/Dropbox/PDFs"
 Bibliography = "#{Home_path}/Dropbox/Bibliography.bib"
 Downloads_path = "#{Home_path}/Downloads"
 
@@ -145,6 +146,45 @@ def gwpage(page, text, msg = "Automatically added text")
   File.write("#{Wikipages_path}/#{page}.#{Wiki_ext}", text)
   `git --git-dir="#{Wikipages_path}/.git" --work-tree="#{Wikipages_path}" add #{page}.#{Wiki_ext}`
   `git --git-dir="#{Wikipages_path}/.git" --work-tree="#{Wikipages_path}" commit -m "#{msg}"`
+end
+
+def gwappend(page, text, msg = "Automatically added text", section = "", clear_section=false)
+  pagepath = "#{Wikipages_path}/#{page}.#{Wiki_ext}"
+
+  # default behavior if the file doesn't exist
+
+  return gwpage(page, text, msg) if not File.exists?(pagepath)
+  
+  # stick the new text at the end of the correct section
+
+  a = File.readlines(pagepath)
+
+  in_section = false
+  outputted = false
+
+  @out = Array.new
+
+  a.each do |line|
+
+    # found the end of the section, stick in the text
+    if not outputted and in_section and line =~ /(^#|^---)/
+      @out << text
+      outputted = true
+      in_section = false
+    end
+
+    @out << line unless clear_section and in_section
+    in_section = true if line.strip == section
+  end
+
+  # ...or just at the end 
+
+  if not outputted 
+    @out << "#{section}\n\n" unless in_section
+    @out << text + "\n\n"
+  end
+
+  gwpage(page, @out.join(""), msg)
 end
 
 # properly format full name, extracted from bibtex
