@@ -2,7 +2,6 @@
 # utility functions for researchr
 require 'settings'
 
-<<<<<<< HEAD
 # constants
 Growl_path = "/usr/local/bin/growlnotify"
 #Wiki_path = "/wiki"
@@ -11,16 +10,14 @@ Wiki_ext = "md"
 Wikipages_path = "#{Home_path}/code/researchwiki"
 Wikimedia_path = "#{Wikipages_path}/pics"
 Wiki_url = "http://localhost:4567/"
-Script_path = "#{Home_path}/code/folders2web"
+Script_path = "#{Home_path}/src/folders2web"
 PDF_path = "#{Home_path}/Dropbox/PDFs"
 Bibliography = "#{Home_path}/Dropbox/Bibliography.bib"
 Downloads_path = "#{Home_path}/Downloads"
 
-=======
 Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
   $LOAD_PATH.unshift(File.expand_path(lib))
 end
->>>>>>> upstream/master
 
 # shows notification on screen. one or two arguments, if one, just shows a message, if two, the first is the title
 # notice the path to growl
