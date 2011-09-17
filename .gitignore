@@ -2,3 +2,4 @@ plist/
 *.swp
 *.swo
 config.yaml
+settings.rb
