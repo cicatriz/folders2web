@@ -105,11 +105,7 @@ def wikipage_selector(title, retfull = false, additional_code = "")
     next unless File.file?(path)
     fname = path.split(/[\.\/]/)[-2]
     idx = fname.index(":")
-<<<<<<< HEAD
-    config << "cb.option = #{fname}\n" if (path.split('.')[-1] == "#{Wiki_ext}" && path[0] != '_')
-=======
-    config << "cb.option = #{capitalize_word(fname)}\n" if (path[-4..-1] == ".txt" && path[0] != '_')
->>>>>>> upstream/master
+    config << "cb.option = #{capitalize_word(fname)}\n" if (path.split('.')[-1] == "#{Wiki_ext}" && path[0] != '_')
   end
   pagetmp = pashua_run config
 
