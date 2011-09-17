@@ -1,9 +1,9 @@
 # encoding: UTF-8
 $:.push(File.dirname($0))
+require 'utility-functions'
 require 'bibtex'
 require 'citeproc'
 require 'find'
-require 'utility-functions'
 require 'appscript'
 include Appscript
 
@@ -101,7 +101,7 @@ out = "h1. Bibliography\n\nDownload [[http://dl.dropbox.com/u/1341682/Bibliograp
 
 dt.document.save
 
-File.open("/wiki/lib/plugins/test/json.tmp","w"){|f| f << JSON.fast_generate(json)}
+File.open(JSON_path,"w"){|f| f << JSON.fast_generate(json)}
 
 out << out1 << out2 << out3 << out4 << "</table></html>"
 File.open('/wiki/data/pages/bib/bibliography.txt', 'w') {|f| f << out}  

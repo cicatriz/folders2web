@@ -1,5 +1,8 @@
+# encoding: UTF-8
 # utility functions for researchr
+require 'settings'
 
+<<<<<<< HEAD
 # constants
 Growl_path = "/usr/local/bin/growlnotify"
 #Wiki_path = "/wiki"
@@ -13,6 +16,11 @@ PDF_path = "#{Home_path}/Dropbox/PDFs"
 Bibliography = "#{Home_path}/Dropbox/Bibliography.bib"
 Downloads_path = "#{Home_path}/Downloads"
 
+=======
+Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
+  $LOAD_PATH.unshift(File.expand_path(lib))
+end
+>>>>>>> upstream/master
 
 # shows notification on screen. one or two arguments, if one, just shows a message, if two, the first is the title
 # notice the path to growl
@@ -85,7 +93,8 @@ def wikipage_selector(title, retfull = false, additional_code = "")
   
   config = "
   *.title = researchr
-  cb.type = combobox 
+  cb.type = combobox
+  cb.completion = 2  
   cb.label = #{title}
   cb.default = start 
   cb.width = 220 
@@ -99,7 +108,11 @@ def wikipage_selector(title, retfull = false, additional_code = "")
     next unless File.file?(path)
     fname = path.split(/[\.\/]/)[-2]
     idx = fname.index(":")
+<<<<<<< HEAD
     config << "cb.option = #{fname}\n" if (path.split('.')[-1] == "#{Wiki_ext}" && path[0] != '_')
+=======
+    config << "cb.option = #{capitalize_word(fname)}\n" if (path[-4..-1] == ".txt" && path[0] != '_')
+>>>>>>> upstream/master
   end
   pagetmp = pashua_run config
 
@@ -202,7 +215,7 @@ end
 # entire bibliography pre-parsed read in from json
 def json_bib()
   require 'json'
-  return JSON.parse(File.read("/wiki/lib/plugins/test/json.tmp"))
+  return JSON.parse(File.read(JSON_path))
 end
 
 # given a start of a filename, and an end, looks if there are already any files existing with the filename (pre)01(post)
