@@ -3,9 +3,9 @@
 require 'settings'
 
 
-Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
-  $LOAD_PATH.unshift(File.expand_path(lib))
-end
+#Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
+#  $LOAD_PATH.unshift(File.expand_path(lib))
+#end
 
 # shows notification on screen. one or two arguments, if one, just shows a message, if two, the first is the title
 # notice the path to growl
