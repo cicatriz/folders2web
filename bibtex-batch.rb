@@ -169,10 +169,7 @@ keywords.each do |keyword, pubs|
   kwname = keyword.gsub(/[\,\.\/ ]/,"_").downcase
   keywordslisted << [kwname,keyword,pubs.size]
   File.open("#{Wikipages_path}/kbib/#{kwname}.txt", 'w') {|f| f << out}  
-
-  if not File.exists?("#{Wikipages_path}/#{kwname}.txt")
-    File.open("#{Wikipages_path}/#{kwname}.txt", 'w') { |f| f << "h1. #{keyword}\n\n{{page>kbib:#{kwname}}}" }
-  end
+  File.open("#{Wikipages_path}/#{kwname}.txt", 'w') { |f| f << "h1. #{keyword}\n{{page>notes:#{kwname}}}\n\nh2. Links here\n {{backlinks>.}}\n\n{{page>kbib:#{kwname}}}" }
 
   puts kwname
 end
