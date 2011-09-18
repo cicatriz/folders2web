@@ -132,7 +132,7 @@ end
 def dwpage(page, text, msg = "Automatically added text")
   tmp = Time.now.to_i.to_s
   File.write("/tmp/researcher-#{tmp}.tmp", text)
-  `/wiki/bin/dwpage.php -m '#{msg}' commit "/tmp/researcher-#{tmp}.tmp" '#{page}'`
+  `#{Wiki_path}/bin/dwpage.php -m '#{msg}' commit "/tmp/researcher-#{tmp}.tmp" '#{page}'`
 end
 
 # wrapper around git-based wiki tool, inserts page 

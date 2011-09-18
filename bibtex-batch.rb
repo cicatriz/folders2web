@@ -22,7 +22,7 @@ def sort_pubs(pubs)
   return pubs.sort {|x,y| x.to_s.scan(/[0-9]+/)[0].to_i <=> y.to_s.scan(/[0-9]+/)[0].to_i}
 end
 
-b = BibTeX.open("/Volumes/Home/stian/Dropbox/Archive/Bibliography.bib")
+b = BibTeX.open(Bibliography)
 b.parse_names
 
 out1 = ''
@@ -64,17 +64,17 @@ b.each do |item|
   json[item.key.to_s] = [namify(ax), year, cit]
   hasfiles = Array.new
   hasfiles[4]=""
-  if File.exists?("/wiki/data/pages/ref/#{item.key}.txt")
+  if File.exists?("#{Wikipages_path}/ref/#{item.key}.txt")
     counter[:hasref] += 1
-    if File.exists?("/wiki/data/pages/clip/#{item.key}.txt") || File.exists?("/wiki/data/pages/kindle/#{item.key}.txt")
+    if File.exists?("#{Wikipages_path}/clip/#{item.key}.txt") || File.exists?("#{Wikipages_path}/kindle/#{item.key}.txt")
       counter[:clippings] += 1
       hasfiles[1] = "C"
     end
-    if File.exists?("/wiki/data/pages/skimg/#{item.key}.txt") 
+    if File.exists?("#{Wikipages_path}/skimg/#{item.key}.txt") 
       counter[:images] += 1
       hasfiles[2] = "I"
     end
-    if File.exists?("/wiki/data/pages/notes/#{item.key}.txt")
+    if File.exists?("#{Wikipages_path}/notes/#{item.key}.txt")
       counter[:notes] += 1 
       hasfiles[0] = "N"
       out1 << "<tr><td><a href = '/wiki/ref:#{item.key}'>#{item.key}</a></td><td>#{hasfiles.join("</td><td>&nbsp;")}</td><td>#{cit}</td></tr>\n"
@@ -104,7 +104,7 @@ dt.document.save
 File.open(JSON_path,"w"){|f| f << JSON.fast_generate(json)}
 
 out << out1 << out2 << out3 << out4 << "</table></html>"
-File.open('/wiki/data/pages/bib/bibliography.txt', 'w') {|f| f << out}  
+File.open("#{Wikipages_path}/bib/bibliography.txt", 'w') {|f| f << out}  
 
 ###############################################
 # generate individual files for each author
@@ -121,7 +121,7 @@ authors.each do |axx, pubs|
   sort_pubs(pubs).each do |i|
     item = b[i]
     cit = CiteProc.process item.to_citeproc, :style => :apa
-    if File.exists?("/wiki/data/pages/ref/#{item.key}.txt")
+    if File.exists?("#{Wikipages_path}/ref/#{item.key}.txt")
       out1 << "| [[..:ref:#{item.key}]] | #{cit}|#{pdfpath(item.key)}|\n"
     else
       out2 << "| #{item.key} | #{cit}|#{pdfpath(item.key)}|\n"
@@ -131,11 +131,11 @@ authors.each do |axx, pubs|
   out << out1 << out2
   authorname = clean_pagename(author)
   authorlisted << [authorname,author,pubs.size]
-  File.open("/wiki/data/pages/abib/#{authorname}.txt", 'w') {|f| f << out}  
+  File.open("#{Wikipages_path}/abib/#{authorname}.txt", 'w') {|f| f << out}  
   puts author
 end
 
-File.open("/wiki/data/pages/abib/start.txt","w") do |f|
+File.open("#{Wikipages_path}/abib/start.txt","w") do |f|
   f << "h1.List of authors with publications\n\nList of authors with publications. Only includes authors with three or more publications, with full names.\n\n"
   authorlisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
     apage = ''
@@ -158,7 +158,7 @@ keywords.each do |keyword, pubs|
   sort_pubs(pubs).each do |i|
     item = b[i]
     cit = CiteProc.process item.to_citeproc, :style => :apa
-    if File.exists?("/wiki/data/pages/ref/#{item.key}.txt")
+    if File.exists?("#{Wikipages_path}/ref/#{item.key}.txt")
       out1 << "| [[..:ref:#{item.key}]] | #{cit}| #{pdfpath(item.key)} |\n"
     else
       out2 << "| #{item.key} | #{cit} | #{pdfpath(item.key)}|\n"
@@ -168,11 +168,11 @@ keywords.each do |keyword, pubs|
   out << out1 << out2
   kwname = keyword.gsub(/[\,\.\/ ]/,"_").downcase
   keywordslisted << [kwname,keyword,pubs.size]
-  File.open("/wiki/data/pages/kbib/#{kwname}.txt", 'w') {|f| f << out}  
+  File.open("#{Wikipages_path}/kbib/#{kwname}.txt", 'w') {|f| f << out}  
   puts kwname
 end
 
-File.open("/wiki/data/pages/kbib/start.txt","w") do |f|
+File.open("#{Wikipages_path}/kbib/start.txt","w") do |f|
   f << "h1. List of publication keywords\n\n"
   keywordslisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
     f << "|[[#{ax[0]}|#{ax[1]}]]|#{ax[2]}|\n"
@@ -185,11 +185,11 @@ end
 pages = Array.new
 out = "h1.Needs key ideas\n\nList of publications with clippings, which do not have key ideas.\n\n"
 
-Find.find("/wiki/data/pages/ref") do |path|
+Find.find("#{Wikipages_path}/ref") do |path|
   next unless File.file?(path)
   fn = File.basename(path)
-  if (File.exists?("/wiki/data/pages/kindle/#{fn}") || File.exists?("/wiki/data/pages/clip/#{fn}")) && !File.exists?("/wiki/data/pages/notes/#{fn}")
+  if (File.exists?("#{Wikipages_path}/kindle/#{fn}") || File.exists?("#{Wikipages_path}/clip/#{fn}")) && !File.exists?("#{Wikipages_path}/notes/#{fn}")
     out << "  * [@#{fn[0..-5]}]\n"
   end
 end
-File.open("/wiki/data/pages/bib/needs_key_ideas.txt","w") {|f| f << out}
+File.open("#{Wikipages_path}/bib/needs_key_ideas.txt","w") {|f| f << out}
