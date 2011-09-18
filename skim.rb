@@ -5,8 +5,6 @@ require 'wiki-lib'
 require 'appscript'
 include Appscript
 
-
-
 # grabs the name of the currently open Skim file, uses skimnotes to extract notes and highlights to a text file,
 # and inserts this as a page, using the filename as a page name, in DokuWiki. intended to be turned into a service.
 
@@ -42,8 +40,6 @@ app('BibDesk').document.save
 dt = app('Skim')
 dt.save(dt.document)
 docu = dt.document.name.get[0][0..-5]
-
-`/Applications/Skim.app/Contents/SharedSupport/skimnotes get -format text #{dt.document.file.get[0].to_s}`
 Citekey = docu
 filename = dt.document.file.get[0].to_s
 `/Applications/Skim.app/Contents/SharedSupport/skimnotes get -format text #{filename}`
@@ -80,33 +76,29 @@ ftlines = `wc "#{PDF_path}/#{docu}.txt"`.split(" ")[1].to_f
 `rm "#{PDF_path}/#{docu}.txt"`
 percentage = ntlines/ftlines*100
 
-#gwappend("#{docu}", @out.join(''), msg="Automatically extracted from Skim", "## Highlights", true)
-#
-# start new stuff
 @out << process(type, text, page)  # pick up the last annotation
 outfinal = "h2. Highlights (#{percentage.to_i}%)\n\n" + @out.join('')
 File.write("/tmp/skimtmp", outfinal)
-`/wiki/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'clip:#{docu}'`
-
-# end new stuff
+`#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'clip:#{docu}'`
 
 if File.exists?("/tmp/skim-screenshots-tmp")
-  @out = Array.new
-
   a = File.readlines("/tmp/skim-screenshots-tmp")
-
+  @out = "h2. Images\n\n"
   c = 0
   a.each do |line|
     f,pg = line.split(",")
-    `mv "#{f.strip}" "#{Wikimedia_path}/skim/#{Citekey}#{c.to_s}.png"`
-    @out << "[[pics/skim/#{Citekey}#{c.to_s}.png]]\n\n[p. #{pg.strip}](skimx://#{Citekey}##{pg.strip})\n\n----\n\n"
+    `mv "#{f.strip}" "#{Wiki_path}/data/media/skim/#{Citekey}#{c.to_s}.png"`
+    @out << "{{skim:#{Citekey}#{c.to_s}.png}}\n\n[[skimx://#{Citekey}##{pg.strip}|p. #{pg.strip}]]\n----\n\n"
     c += 1
   end
   `rm "/tmp/skim-screenshots-tmp"`
-  `git --git-dir="#{Wikipages_path}/.git" --work-tree="#{Wikipages_path}" add pics/skim/*.png` 
-  #gwpage("#{docu}", @out.join(""), msg="Automatically extracted from Skim")
-  gwappend("#{docu}", @out.join(""), msg="Automatically extracted from Skim", "## Images")
+  File.open("/tmp/skimtmp", "w") {|f| f << @out}
+  `#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'skimg:#{docu}'`
 end
 
+app("BibDesk").document.search({:for =>docu})[0].fields["Read"].value.set("1")
+ensure_refpage(docu)
+dt.save(dt.document)
+
 #make_newimports_page([docu])
-`open #{Wiki_url}#{docu}`
+`open http://localhost/wiki/ref:#{docu}`
