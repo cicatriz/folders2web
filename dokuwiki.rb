@@ -194,10 +194,11 @@ EOS
   exit if pagetmp["cancel"] == 1
   page = pagetmp["cb"]
   pname = "/wiki/data/pages/gist/#{clean_pagename(page)}.txt"
-  
-  File.open(pname,"w") {|f| f<<"[[#{page}]]"}
-  
-  `chmod a+rw "#{pname}"`
+
+  if not File.exists?(pname)
+    File.open(pname,"w") {|f| f<<"[[#{page}]]"}
+    `chmod a+rw "#{pname}"`
+  end
   
   `open "http://localhost/wiki/gist:#{page}?do=edit"`
 end
