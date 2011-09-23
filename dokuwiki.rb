@@ -175,6 +175,33 @@ EOS
   `open "http://localhost/wiki/a:#{page}?do=edit"`
 end
 
+
+def newgist
+  require 'Pashua'
+  include Pashua
+
+  config = <<EOS
+  *.title = Add a new gist page
+  cb.type = textfield 
+  cb.label = Name of gist page to create
+  cb.width = 220 
+  db.type = cancelbutton
+  db.label = Cancel
+  db.tooltip = Closes this window without taking action
+EOS
+
+  pagetmp = pashua_run config
+  exit if pagetmp["cancel"] == 1
+  page = pagetmp["cb"]
+  pname = "/wiki/data/pages/gist/#{clean_pagename(page)}.txt"
+  
+  File.open(pname,"w") {|f| f<<"[[#{page}]]"}
+  
+  `chmod a+rw "#{pname}"`
+  
+  `open "http://localhost/wiki/gist:#{page}?do=edit"`
+end
+
 #### Running the right function, depending on command line input ####
 
 Chrome = Appscript.app('Google Chrome')
