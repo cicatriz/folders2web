@@ -101,18 +101,16 @@ def clip
   onlytext = pagetmp['ob'] == "1" ? true : false
   pagename = pagetmp['cb'].strip
   title = pagetmp['fb'].strip
-  File.write("/tmp/dokuwiki-clip.tmp","#{pagename}\n#{title}\n#{onlytext.to_s}")
+  File.write("/tmp/dokuwiki-clip.tmp","#{pagename}\n#{onlytext.to_s}")
   do_clip(pagename, title, onlylink, onlytext)
 end
 
 # uses info stored in temp file to do a clipping from the same page, to the same page
 def clip_again
   a = File.read("/tmp/dokuwiki-clip.tmp")
-  page, title, onlytext_s = a.split("\n")
+  page, onlytext_s = a.split("\n")
   onlytext = (onlytext_s == 'true') ? true : false
-  if title.strip == ""
-    title = curtitle
-  end
+  title = curtitle
   do_clip(page, title, false, onlytext)
 end
 
