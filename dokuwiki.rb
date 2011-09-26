@@ -248,7 +248,7 @@ EOS
   pname = "/wiki/data/pages/gist/#{clean_pagename(page)}.txt"
 
   if not File.exists?(pname)
-    File.open(pname,"w") {|f| f<<"[[#{page}]]"}
+    File.write(pname, "[[#{page}]]")
     `chmod a+rw "#{pname}"`
   end
   

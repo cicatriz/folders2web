@@ -25,6 +25,7 @@ end
 
 def make_rss_feed
   fname = Wiki_path + "/rss-temp"
+  return unless File.exists?(fname)
   rss_entries = Marshal::load(File.read(fname))
 
   version = "2.0" # ["0.9", "1.0", "2.0"]
@@ -68,6 +69,8 @@ counter[:clippings] = 0
 counter[:images] = 0
 
 b.each do |item|
+  next unless item.respond_to? :to_citeproc
+
   ax = []
   if item.respond_to? :author
     item.author.each do |a|
@@ -83,6 +86,7 @@ b.each do |item|
       keywords[a] << item.key
     end    
   end
+  
   cit = CiteProc.process item.to_citeproc, :style => :apa
   year = (defined? item.year) ? item.year.to_s : "n.d."
   if year == "n.d." and cit.match(/\((....)\)/) 
