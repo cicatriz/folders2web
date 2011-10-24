@@ -10,9 +10,9 @@ include Appscript
 `/usr/local/bin/growlnotify -m "Starting import of Kindle highlights"`
 
 app("BibDesk").document.save
-a = File.open("/Volumes/Kindle/documents/My\ Clippings.txt")
-#filename = ( ARGV[0] ? ARGV[0] : "$RESEACHR_HOME/My Clippings.txt")
-#a = File.open(filename)
+#a = File.open("/Volumes/Kindle/documents/My\ Clippings.txt")
+filename = ( ARGV[0] ? ARGV[0] : "#{Script_path}/My Clippings.txt")
+a = File.open(filename)
 annotations = Hash.new
 
 def format(text,label, loc)
@@ -52,16 +52,15 @@ annotations.each do |title, article|
   app("BibDesk").document.search({:for =>citekey})[0].fields["Read"].value.set("1")
   new_imports << citekey
   c += 1
-  out = ""
+  out = "h1. Kindle highlights\n\n"
 
   article[:clippings].each do |clip|
     out << format(clip[:text], clip[:label],clip[:loc])
   end
 
-  #gwpage(citekey, out, "Automatically extracted from Kindle")
-  
+  File.open("/tmp/kindletmp", "w") {|f| f << out}
+  `/wiki/bin/dwpage.php -m 'Automatically extracted from Kindle' commit /tmp/kindletmp 'kindle:#{citekey}'`
   ensure_refpage(citekey)
-  gwappend(citekey, out, "Automatically extracted from Kindle", "## Highlights")
 end
 
 make_newimports_page(new_imports)
