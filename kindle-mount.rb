@@ -52,7 +52,7 @@ annotations.each do |title, article|
   app("BibDesk").document.search({:for =>citekey})[0].fields["Read"].value.set("1")
   new_imports << citekey
   c += 1
-  out = "h1. Kindle highlights\n\n"
+  out = "h2. Kindle highlights\n\n"
 
   article[:clippings].each do |clip|
     out << format(clip[:text], clip[:label],clip[:loc])
