@@ -183,14 +183,18 @@ end
 
 # asks for the name of a page, and presents it side-by-side with the existing page, in editing mode if it's a wiki page
 def sbs
+  require 'cgi'
   page = wikipage_selector("Choose page to view side-by-side with the current page")
   exit unless page
 
-  if cururl.index("localhost/wiki")
-    cururl = cururl.to_s + "?do=edit&vecdo=print"
+  url = cururl
+
+  if url.index("localhost/wiki")
+    cururl = url.to_s + "?do=edit&vecdo=print"
   else
     # uses Instapaper to nicely format the article text, for fitting into a split-screen window
-    cururl = "http://www.instapaper.com/text?u=\"+encodeURIComponent(\"#{cururl}\")+\""
+    #p cururl
+    cururl = "http://www.instapaper.com/text?u=#{CGI.escapeHTML(url)}"
   end
 
   newurl = "http://localhost/wiki/#{page.gsub(" ","_")}"
@@ -227,6 +231,7 @@ EOS
   `open "http://localhost/wiki/a:#{page}?do=edit"`
 end
 
+# creates a gist page based on the given page name
 
 def newgist
   require 'Pashua'
@@ -253,6 +258,72 @@ EOS
   end
   
   `open "http://localhost/wiki/gist:#{page}?do=edit"`
+end
+
+# add a log for a given page
+def log
+  require 'find'
+  require 'pashua'
+  include Pashua
+
+  config = <<EOS
+  *.title = researchr log
+  cb.type = combobox
+  cb.completion = 2  
+  cb.label = Where do you want to file the log?
+  cb.width = 220 
+  cb.tooltip = Choose from the list or enter another name
+  eb.type = textfield
+  eb.label = Message
+  eb.width = 220
+  db.type = cancelbutton
+  db.label = Cancel
+  db.tooltip = Closes this window without taking action
+EOS
+
+  # insert list of all wiki pages from filesystem into Pashua config
+  Find.find(Wikipages_path) do |path|
+    next unless File.file?(path)
+    fname = path.split(/[\.\/]/)[-2]
+    idx = fname.index(":")
+    config << "cb.option = #{capitalize_word(fname)}\n" if (path.split('.')[-1] == "#{Wiki_ext}" && path[0] != '_')
+  end
+  pagetmp = pashua_run config
+
+  return if pagetmp['db'] == 1 
+  page = pagetmp['cb'].downcase
+  msg = "  * #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} #{pagetmp['eb']}\n"
+  fname = "#{Wikipages_path}/log/#{page}.txt"
+
+  File.append(fname, msg)
+  `chmod a+rw "#{fname}"`
+
+  # try to add log file to root namespace page, if one exists
+  root_fname = "#{Wikipages_path}/#{page}.txt"
+  if File.exists?(root_fname)
+    if not File.read(root_fname).index("{{page>log:#{page}}}")
+      File.append(root_fname, "\n\nh2. Log\n\n{{page>log:#{page}}}")
+    end
+
+    Chrome.windows[1].get.tabs[Chrome.windows[1].get.active_tab_index.get].get.URL.set("http://localhost/wiki/#{page}")
+  end
+
+  compile_logs
+end
+
+# put all logs into one file
+
+def compile_logs
+  lines = []
+  Dir["#{Wikipages_path}/log/*.txt"].each do |f|
+    page = f.split("/")[-1].split(".")[0]
+    lines += File.read(f).split("\n").collect { |l| l + " #[[#{page}]]" }
+  end
+
+  lines.sort!
+
+  File.write("#{Wikipages_path}/logs.txt", lines.join("\n"))
+  `chmod u+rwx #{Wikipages_path}/logs.txt`
 end
 
 #### Running the right function, depending on command line input ####

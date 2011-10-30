@@ -203,7 +203,18 @@ keywords.each do |keyword, pubs|
   kwname = keyword.gsub(/[\,\.\/ ]/,"_").downcase
   keywordslisted << [kwname,keyword,pubs.size]
   File.open("#{Wikipages_path}/kbib/#{kwname}.txt", 'w') {|f| f << out}  
-  File.open("#{Wikipages_path}/#{kwname}.txt", 'w') { |f| f << "h1. #{keyword}\n{{page>notes:#{kwname}}}\n\nh2. Links here\n {{backlinks>.}}\n\n{{page>kbib:#{kwname}}}" }
+  
+  # move an existing but improperly formatted keyword page to the notes:
+  # namespace 
+  kwpath = "#{Wikipages_path}/#{kwname}.txt"
+  if File.exists?(kwpath)
+    existing_f = File.read(kwpath)
+    if not existing_f.index("{{page>kbib:#{kwname}}")
+      File.write("#{Wikipages_path}/notes/#{kwname}.txt", existing_f)
+    end
+  end
+    
+  File.open(kwpath, 'w') { |f| f << "h1. #{keyword}\n{{page>notes:#{kwname}}}\n[[notes:#{kwname}?do=edit|Edit summary]]\n\nh2. Links here\n {{backlinks>.}}\n\n{{page>kbib:#{kwname}}}\n\nh2. Logs\n{{page>log:#{kwname}}}" }
 
   puts kwname
 end
