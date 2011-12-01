@@ -1,3 +1,3 @@
 #!/bin/sh
 
-ruby -KU $RESEARCHR_HOME/kindle-mount.rb
+ruby -KU kindle-mount.rb
