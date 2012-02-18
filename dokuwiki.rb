@@ -260,6 +260,32 @@ EOS
   `open "http://localhost/wiki/gist:#{page}?do=edit"`
 end
 
+
+def review
+  require 'pashua'
+  include Pashua
+
+  config = <<EOS
+  *.title = researchr review
+  eb.type = textfield
+  eb.label = Message
+  eb.width = 220
+  db.type = cancelbutton
+  db.label = Cancel
+  db.tooltip = Closes this window without taking action
+EOS
+
+  pagetmp = pashua_run config
+
+  return if pagetmp['db'] == 1 
+  msg = "  * #{pagetmp['eb']}\n"
+  fname = "#{Wikipages_path}/reflections/start.txt"
+
+  File.append(fname, msg)
+  growl("Item filed for review.")
+end
+
+
 # add a log for a given page
 def log
   require 'find'
@@ -305,9 +331,9 @@ EOS
       File.append(root_fname, "\n\nh2. Log\n\n{{page>log:#{page}}}")
     end
 
-    Chrome.windows[1].get.tabs[Chrome.windows[1].get.active_tab_index.get].get.URL.set("http://localhost/wiki/#{page}")
   end
 
+  growl("Log filed under #{page}")
   compile_logs
 end
 

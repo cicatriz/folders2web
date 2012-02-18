@@ -74,7 +74,7 @@ ntlines = `wc "/tmp/skimnote-tmp"`.split(" ")[1].to_f
 `/usr/local/bin/pdftotext "#{filename}"`
 ftlines = `wc "#{PDF_path}/#{docu}.txt"`.split(" ")[1].to_f
 `rm "#{PDF_path}/#{docu}.txt"`
-percentage = ntlines/ftlines*100
+percentage = ftlines > 0 ? ntlines/ftlines*100 : 0
 
 @out << process(type, text, page)  # pick up the last annotation
 outfinal = "h2. Highlights (#{percentage.to_i}%)\n\n" + @out.join('')
