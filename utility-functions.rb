@@ -1,13 +1,20 @@
 # encoding: UTF-8
 # utility functions for researchr
-require 'settings'
+$:.push(File.dirname($0))
+Bibliography_header = "h1. Bibliography\n\n
+Also see bibliography by [[abib:start|author]] or by [[kbib:start|keyword]].\n\n
+Publications that have their own pages are listed on top, and hyperlinked. Most of these also have clippings and many have key ideas.\n\n"
+Home_path = ENV['HOME']
+Script_path = File.dirname(__FILE__)
+
+require 'settings' if File.exists?("#{Script_path}/settings.rb")
 
 
 # comment the three next lines to use your own gems, instead of the frozen ones, if you don't have OSX 10.7
 # or there are other errors with incompatible libraries etc
-#Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
-#  $LOAD_PATH.unshift(File.expand_path(lib))
-#end
+# Dir.glob(File.join(File.dirname($0), "vendor", "gems", "*", "lib")).each do |lib|
+#   $LOAD_PATH.unshift(File.expand_path(lib))
+# end
 
 # shows notification on screen. one or two arguments, if one, just shows a message, if two, the first is the title
 # notice the path to growl
@@ -16,9 +23,12 @@ def growl(title,text='')
     text = title
     title = ''
   end
-  `#{Growl_path} -t "#{title}" -m "#{text}"`
+  `#{Script_path}/growlnotify -t "#{title}" -m "#{text}"`
 end
 
+def log(text)
+  File.append("#{Script_path}/log.txt",text)
+end
 
 # a few extra file functions
 class File
@@ -31,7 +41,7 @@ class File
 
     # adds File.append - analogous to File.read, writes text to filename
     def append(filename, text)
-      File.open(filename,"a") {|f| f << text}
+      File.open(filename,"a") {|f| f << text + "\n"}
     end
 
     # find the last file added in directory
@@ -39,8 +49,25 @@ class File
       path += "*" unless path.index("*")
       Dir[path].select {|f| test ?f, f}.sort_by {|f|  File.mtime f}.pop
     end
-
+    
+    def replace(path, before, after, newpath = "")
+      a = File.read(path)
+      a.gsub!(before, after)
+      newpath = path if newpath == ""
+      File.write(newpath, a)
+    end
   end
+end
+
+def dl_file(full_url, to_here, require_type = false)
+    require 'open-uri'    
+    writeOut = open(to_here, "wb")
+    url = open(full_url)
+    if require_type
+      raise NameError if url.content_type.strip.downcase != require_type
+    end
+    writeOut.write(url.read)
+    writeOut.close
 end
 
 
@@ -91,7 +118,8 @@ def wikipage_selector(title, retfull = false, additional_code = "")
   db.tooltip = Closes this window without taking action" + "\n" + additional_code + "\n"
 
   # insert list of all wiki pages from filesystem into Pashua config
-  Find.find(Wikipages_path) do |path|
+  wpath = "#{Wiki_path}/data/pages/"
+  Find.find(wpath) do |path|
     next unless File.file?(path)
     fname = path.split(/[\.\/]/)[-2]
     idx = fname.index(":")
@@ -198,7 +226,7 @@ end
 # entire bibliography pre-parsed read in from json
 def json_bib()
   require 'json'
-  return JSON.parse(File.read(JSON_path))
+  return JSON.parse(File.read(Wiki_path+"/lib/plugins/dokuresearchr/json.tmp"))
 end
 
 # given a start of a filename, and an end, looks if there are already any files existing with the filename (pre)01(post)
@@ -238,5 +266,20 @@ class Hash
       end
     end
   end
+end
+
+# calculate SHA-2 hash for a given file
+def hashsum(filename)
+  require 'digest/sha2'    
+  hashfunc = Digest::SHA2.new
+  File.open(filename, "r") do |io|
+    counter = 0
+    while (!io.eof)
+      readBuf = io.readpartial(1024)
+      #				putc '.' if ((counter+=1) % 3 == 0)
+      hashfunc.update(readBuf)
+    end
+  end
+  return hashfunc.hexdigest
 end
 

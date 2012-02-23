@@ -99,14 +99,14 @@ File.write("/tmp/skimnote-tmp", alltext)
 ntlines = `wc "/tmp/skimnote-tmp"`.split(" ")[1].to_f
 `rm "/tmp/skimnote-tmp"`
 `/usr/local/bin/pdftotext "#{filename}"`
-ftlines = `wc "#{PDF_path}/#{Citekey}.txt"`.split(" ")[1].to_f
-`rm "#{PDF_path}/#{Citekey}.txt"`
+ftlines = `wc "#{PDF_path}/#{docu}.txt"`.split(" ")[1].to_f
+`rm "#{PDF_path}/#{docu}.txt"`
 percentage = ftlines > 0 ? ntlines/ftlines*100 : 0
 
 @out << process(type, text, page)  # pick up the last annotation
 outfinal = "h2. Highlights (#{percentage.to_i}%)\n\n" + @out.join('')
 File.write("/tmp/skimtmp", outfinal)
-`#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'clip:#{Citekey}'`
+`#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'clip:#{docu}'`
 
 if File.exists?("/tmp/skim-#{Citekey}-tmp")
   a = File.readlines("/tmp/skim-#{Citekey}-tmp")
@@ -120,7 +120,11 @@ if File.exists?("/tmp/skim-#{Citekey}-tmp")
   end
 #  `rm "/tmp/skim-#{Citekey}-tmp"`
   File.open("/tmp/skimtmp", "w") {|f| f << @out}
-  `#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'skimg:#{Citekey}'`
+<<<<<<< HEAD
+  `#{Wiki_path}/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'skimg:#{docu}'`
+=======
+  `/wiki/bin/dwpage.php -m 'Automatically extracted from Skim' commit /tmp/skimtmp 'skimg:#{Citekey}'`
+>>>>>>> bibtexnet
 end
 
 srch = app("BibDesk").document.search({:for =>Citekey})[0]
@@ -129,5 +133,10 @@ srch.fields["Date-read"].value.set(Time.now.to_s)
 ensure_refpage(Citekey)
 dt.save(dt.document)
 
+<<<<<<< HEAD
 #make_newimports_page([docu])
+`open http://localhost/wiki/ref:#{docu}`
+=======
+#make_newimports_page([Citekey])
 `open http://localhost/wiki/ref:#{Citekey}`
+>>>>>>> bibtexnet

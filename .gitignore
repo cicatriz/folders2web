@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 plist/
 *.swp
 *.swo
 config.yaml
 settings.rb
 My\ Clippings.txt
+=======
+# config.yaml.distribution and settings-dist.rb are the ones in the repository
+config.yaml
+settings.rb
+
+# OS generated
+.DS_Store?
+>>>>>>> bibtexnet
