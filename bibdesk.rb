@@ -151,6 +151,7 @@ def open_page
     docu = dd.cite_key.get
     ary << docu unless File.exists?("#{Wiki_path}/data/pages/ref/#{docu}.txt")
     ensure_refpage(docu)
+    scrobble(docu)
   end
   `open http://localhost/wiki/ref:#{Selection[0].cite_key.get}`
 end
