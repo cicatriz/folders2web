@@ -127,6 +127,7 @@ srch = app("BibDesk").document.search({:for =>Citekey})[0]
 srch.fields["Read"].value.set("1")
 srch.fields["Date-read"].value.set(Time.now.to_s)
 ensure_refpage(Citekey)
+scrobble(Citekey)
 dt.save(dt.document)
 
 #make_newimports_page([docu])
