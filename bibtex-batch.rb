@@ -140,7 +140,6 @@ b.each do |item|
   # if File.exists?("#{Wiki_path}/data/pages/clip/#{item.key}.txt") || File.exists?("#{Wiki_path}/data/pages/kindle/#{item.key}.txt")
   #   dt.document.search({:for =>item.key.to_s})[0].fields["Read"].value.set("1")
   # end
-
 end
 
 
@@ -224,7 +223,6 @@ keywords.each do |keyword, pubs|
   out << out1 << out2
   kwname = keyword.gsub(/[\,\.\/ ]/,"_").downcase
   keywordslisted << [kwname,keyword,pubs.size]
-<<<<<<< HEAD
   File.open("#{Wiki_path}/data/pages/kbib/#{kwname}.txt", 'w') {|f| f << out}  
   
   # move an existing but improperly formatted keyword page to the notes:

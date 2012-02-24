@@ -283,16 +283,27 @@ def hashsum(filename)
   return hashfunc.hexdigest
 end
 
-def scrobble(citation)
+def send_to_server(path, payload)
+
   require 'net/http'
   require 'json'
   
-  @payload = { "scrobble" => 
-    { "user_id" => Scrobble_user_id,
-      "citekey" => citation }}.to_json
-
-  req = Net::HTTP::Post.new("/scrobbles", {'Content-Type' => 'application/json'})
-  req.body = @payload
+  req = Net::HTTP::Post.new(path, {'Content-Type' => 'application/json'})
+  req.body = payload
   response = Net::HTTP.new(Scrobble_server_host, Scrobble_server_port).start { |http| http.request(req) }
+end
+
+
+def submit_citation(citation, bibtex)
+  payload = { "citation" => { "submitter_id" => Scrobble_user_id,
+                              "citekey" => citation,
+                              "bibtex" => bibtex}}.to_json
+  send_to_server("/citations", payload)
+end
+
+def scrobble(citation)
+  payload = { "scrobble" => { "user_id" => Scrobble_user_id },
+               "citekey" => citation }.to_json
+  send_to_server("/scrobbles", payload)
 end
 
