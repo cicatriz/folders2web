@@ -1,13 +1,8 @@
 # encoding: UTF-8
 # utility functions for researchr
 $:.push(File.dirname($0))
-Bibliography_header = "h1. Bibliography\n\n
-Also see bibliography by [[abib:start|author]] or by [[kbib:start|keyword]].\n\n
-Publications that have their own pages are listed on top, and hyperlinked. Most of these also have clippings and many have key ideas.\n\n"
-Home_path = ENV['HOME']
-Script_path = File.dirname(__FILE__)
 
-require 'settings' if File.exists?("#{Script_path}/settings.rb")
+require 'settings'
 
 
 # comment the three next lines to use your own gems, instead of the frozen ones, if you don't have OSX 10.7
@@ -301,9 +296,17 @@ def submit_citation(citation, bibtex)
   send_to_server("/citations", payload)
 end
 
+def submit_wikipage(citation)
+  payload = { "ref_link" => { "user_id" => Scrobble_user_id,
+                              "url" => Internet_path + "/ref:" + citation },
+              "citekey" => citation }.to_json
+  send_to_server("/ref_links", payload)
+end
+
 def scrobble(citation)
   payload = { "scrobble" => { "user_id" => Scrobble_user_id },
                "citekey" => citation }.to_json
   send_to_server("/scrobbles", payload)
+  submit_wikipage(citation)
 end
 
