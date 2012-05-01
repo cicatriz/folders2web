@@ -289,23 +289,22 @@ def send_to_server(path, payload)
 end
 
 
-def submit_citation(citation, bibtex)
-  payload = { "citation" => { "submitter_id" => Scrobble_user_id,
-                              "citekey" => citation,
-                              "bibtex" => bibtex}}.to_json
+def submit_citation(bibtex)
+  payload = { "bibtex" => bibtex,
+              "token"  => Scrobble_token }.to_json
   send_to_server("/citations", payload)
 end
 
 def submit_wikipage(citation)
-  payload = { "ref_link" => { "user_id" => Scrobble_user_id,
-                              "url" => Internet_path + "/ref:" + citation },
-              "citekey" => citation }.to_json
+  payload = { "ref_link" => { "url" => Internet_path + "/ref:" + citation },
+              "citekey"  => citation,
+              "token"    => Scrobble_token }.to_json
   send_to_server("/ref_links", payload)
 end
 
 def scrobble(citation)
-  payload = { "scrobble" => { "user_id" => Scrobble_user_id },
-               "citekey" => citation }.to_json
+  payload = { "citekey" => citation,
+              "token"   => Scrobble_token }.to_json
   send_to_server("/scrobbles", payload)
   submit_wikipage(citation)
 end
