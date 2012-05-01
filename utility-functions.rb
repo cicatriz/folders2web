@@ -9,7 +9,7 @@ PDF_content_types = [
     "application/text.pdf"
   ]
 
-require 'settings' if File.exists?("#{Script_path}/settings.rb")
+require 'settings' 
 
 # comment the three next lines to use your own gems, instead of the frozen ones, if you don't have OSX 10.7
 # or there are other errors with incompatible libraries etc
