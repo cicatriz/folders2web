@@ -5,40 +5,81 @@
 $:.push(File.dirname($0))
 require 'utility-functions'
 require 'appscript'
- 
+
+#### utilities ####
+# adds citation to json file, could be expanded to do other post-import cleanup tasks
+def post_import
+  cit = pbpaste
+  bib = try { cit.scan(/\@(.+?)\{(.+?)\,/)[0][1] }
+  fail "Could not add citation to json, citekey not found in BibTeX" unless bib
+
+  citekey = bib
+
+  add_to_jsonbib(citekey)
+end
+
 #### keyboard commands ####
- 
-# email selected files to Kindle - needs some polish 
+
+# email selected files to Kindle, or copy through USB cable - needs some polish
 # launched by ctrl+alt+cmd+K
 def send_to_kindle
-  require 'mail-lib'
+  pluggedin = File.exists?('/Volumes/Kindle')
+  verb = pluggedin ? ["transferring", "transferred"] : ["sending", "sent"]
+
+  require 'mail-lib' unless pluggedin
+
+  growl "Preparing and #{verb[0]} #{Selection.size} documents to Kindle"
+
+  successful = 0
   Selection.each do |dd|
+
+    # prepare document
     docu = dd.cite_key.get
     title = dd.title.get.gsub(/[\{|\}]/,"")
     authors = dd.author.name.get.join(", ")
     `/usr/local/bin/pdftotext "#{PDF_path}/#{docu}.pdf" /tmp/#{docu}.txt`
     `ebook-convert /tmp/#{docu}.txt /tmp/#{docu}.mobi`
     `ebook-meta /tmp/#{docu}.mobi -t "#{title} [#{docu}]" -a "#{authors}" --category="Bibdesk"`
-    `cp /tmp/#{docu}.mobi /Volumes/Kindle/documents`
-  #  mail_file("/tmp/[#{docu}].pdf")
+
+    next unless File.exists?("/tmp/#{docu}.mobi")
+
+    successful += 1
+
+    if pluggedin
+      `cp /tmp/#{docu}.mobi /Volumes/Kindle/documents`
+    else
+      mail_file("/tmp/#{docu}.mobi")
+    end
   end
-  growl("#{d.size} file(s) sent")
-end 
+  growl("#{successful} file(s) #{verb[1]} to Kindle")
+end
 
 # properly formats an author list for BibDesk with " and " as separator
 # launched by ctrl+alt+cmd+P
 def authorlist
   a = pbpaste.strip
-  a.force_encoding("ISO-8859-1")
 
   # determine whether to split on newline, space or comma
   if a.scan(";").size > 1
     splt = ";"
+  elsif a.scan(".,").size > 2 # takes care of initials, like Haklev, S. H., Peter, J. H.
+    splt = ".,"
   elsif a.scan(",").size > 2
     splt = ","
   end
 
-  a= a.split(splt).join("||").gsub(" and ","").gsub("&","").gsub("||", " and ").gsub(/ +/," ").gsub(/\(.+?\)/, '')
+  a = a.split(splt)
+
+  a = a.join("||").gsubs(
+    [/\.([^ ])/, '. \1'],       # fixing space between initials, Stian H.Aklev -> Stian H. Aklev
+    [/ ([^ ])\|\|/, ' \1.||'],  # putting the final dot back if removed above, maybe not most elegant way
+    [" and ",""],               # we've already split, hopefully correctly
+    ["&",""],                   # see above
+    ["||", " and "],            # key transformation, put them back together with and (hoping that the split worked)
+    [/ +/," "],                 # pruning spaces
+    [/\(.+?\)/, ''],            # removing affiliations Stian Haklev (University of Toronto)
+    [/\d/, '']                  # remove all numbers
+    )
   pbcopy(a)
 end
 
@@ -61,16 +102,26 @@ end
 # launched by ctrl+alt+cmd+L
 def linkfile
   curfile =  File.last_added("#{Downloads_path}/*.pdf")
-  unless curfile # no last file found
-    growl("Sorry, no PDFs found in that directory")
-    exit(0)
-  end
+  fail "Sorry, no PDFs found in that directory" unless curfile # no last file found
 
+  # grab download URL before file gets moved
+  a = `mdls -name kMDItemWhereFroms "#{curfile}"`
+  dlurl = try {a.split('"')[1]}
+
+
+  # import and autolink file
   f = MacTypes::FileURL.path(curfile)
   Selection[0].linked_files.add(f,{:to =>Selection[0]})
   Selection[0].auto_file
 
   growl("PDF added", "File added successfully to #{Selection[0].cite_key.get}")
+
+  # check if OA, and add URL field if yes
+  if dlurl.index('http') && check_oa(dlurl)
+    Selection[0].fields["Url"].value.set(dlurl)
+    growl "Publication is OA, URL successfully added"
+  end
+
 end
 
 
@@ -78,39 +129,29 @@ end
 # bibtex import, attach PDF, and autofile
 def get_bibtexnet
   require 'open-uri'
-  
+
   growl "Bibtexnet", "Trying to acquire metadata for #{Selection.size} publication(s)"
 
   c = 0
 
-  Selection.each do |item|    
-    begin
-      file =  item.linked_files.get[0].to_s
-    rescue
-      next
-    end
-    
-    next unless File.exists?(file)
+  Selection.each do |item|
+    file = try {item.linked_files.get[0].to_s}
+
+    next unless file && File.exists?(file)
 
     hash = hashsum(file)
-    puts hash
     bibtex = open("http://localhost/bibtexnet/#{hash}").read
-    puts bibtex
 
   # ensure proper reply
     next unless bibtex.index("BIBTEX<<<")
 
     btxstring = bibtex.match(/BIBTEX\<\<\<(.+?)\>\>\>/m)[1]
-    begin
-      newpub = BibDesk.documents[0].import(BibDesk.documents[0], {:from => btxstring})[0]
-    rescue
-      next
-    end
-    
+    newpub = try {BibDesk.documents[0].import(BibDesk.documents[0], {:from => btxstring})[0]}
+
     f = MacTypes::FileURL.path(file)
     newpub.linked_files.add(f,{:to =>newpub})
     newpub.auto_file
-    
+
     item.remove
     c += 1
   end

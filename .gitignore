@@ -1,15 +1,24 @@
-<<<<<<< HEAD
 plist/
 *.swp
 *.swo
 config.yaml
 settings.rb
 My\ Clippings.txt
-=======
-# config.yaml.distribution and settings-dist.rb are the ones in the repository
+# config.yaml.distribution, settings-dist.rb and keyboard_maestro.dist.kmmacros are the ones in the repository
 config.yaml
 settings.rb
+import_to_keyboard_maestro.kmmacros
 
 # OS generated
 .DS_Store?
->>>>>>> bibtexnet
+
+# wiki
+wiki/data/cache/
+wiki/data/index/
+wiki/data/meta
+
+# st2
+tags
+
+# bibtexnet
+pubs.sqlite
