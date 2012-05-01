@@ -147,7 +147,7 @@ b.each do |item|
       hasfiles[0] = "N"
     end
 
-    txt = "| [#:ref:#{item.key}|#{item.key}] | #{hasfiles.join(" | ")} |#{cit}|\n"
+    txt = "|[[ref:#{item.key}|#{item.key}]] | #{hasfiles.join(" | ")} |#{cit}|\n"
 
     if hasfiles[0] == "N"
       out1 << txt
@@ -266,42 +266,42 @@ if journalopt
   timetmp = Time.now
   puts "Generating individual files for each journal"
 
-authorlisted = Array.new
-journals.each do |axx, pubs|
-  out =''
-  out1 = ''
-  out2 =''
-  author = axx.strip
-  next unless pubs.size > 5
-  # only generates individual author pages for authors with full names. this is because I want to deduplicate author names
-  # when you import bibtex, you get many different spellings etc.
-  out = "h2. Publications in #{author}\n\n"
-  sort_pubs(pubs).each do |i|
-    item = b[i]
-    if File.exists?("#{Wiki_path}/data/pages/ref/#{item.key}.txt")
-      out1 << "| [#:ref:#{item.key}|#{item.key}] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
-    else
-      out2 << "| #{item.key} | #{item[:cit]}|#{pdfpath(item.key)}|\n"
+  authorlisted = Array.new
+  journals.each do |axx, pubs|
+    out =''
+    out1 = ''
+    out2 =''
+    author = axx.strip
+    next unless pubs.size > 5
+    # only generates individual author pages for authors with full names. this is because I want to deduplicate author names
+    # when you import bibtex, you get many different spellings etc.
+    out = "h2. Publications in #{author}\n\n"
+    sort_pubs(pubs).each do |i|
+      item = b[i]
+      if File.exists?("#{Wiki_path}/data/pages/ref/#{item.key}.txt")
+        out1 << "| [#:ref:#{item.key}|#{item.key}] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
+      else
+        out2 << "| #{item.key} | #{item[:cit]}|#{pdfpath(item.key)}|\n"
+      end
     end
+
+    out << out1 << out2
+    authorname = clean_pagename(author)
+    authorlisted << [authorname,author,pubs.size]
+    File.open("#{Wiki_path}/data/pages/jbib/#{authorname}.txt", 'w') {|f| f << out}
   end
 
-  out << out1 << out2
-  authorname = clean_pagename(author)
-  authorlisted << [authorname,author,pubs.size]
-  File.open("#{Wiki_path}/data/pages/jbib/#{authorname}.txt", 'w') {|f| f << out}
-end
-end
-
-File.open("#{Wiki_path}/data/pages/jbib/start.txt","w") do |f|
-  f << "h1.List of journals with publications\n\nList of journals with publications. Only includes journals with five or more publications.\n\n"
-  authorlisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
-    apage = ''
-    if File.exists?("#{Wiki_path}/data/pages/a/#{ax[0]}.txt")
-      apage = "[#:a:#{ax[0]}|author page]"
+  File.open("#{Wiki_path}/data/pages/jbib/start.txt","w") do |f|
+    f << "h1.List of journals with publications\n\nList of journals with publications. Only includes journals with five or more publications.\n\n"
+    authorlisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
+      apage = ''
+      if File.exists?("#{Wiki_path}/data/pages/a/#{ax[0]}.txt")
+        apage = "[#:a:#{ax[0]}|author page]"
+      end
+      f << "| [##{ax[0]}|#{ax[1]}] | #{apage} |#{ax[2]}|\n"
     end
-    f << "| [##{ax[0]}|#{ax[1]}] | #{apage} |#{ax[2]}|\n"
+    puts "Finished (#{Time.now - timetmp} s.)"
   end
-  puts "Finished (#{Time.now - timetmp} s.)"
 end
 
 
