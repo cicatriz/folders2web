@@ -13,7 +13,7 @@ log "Started bibtex-batch on #{Time.now}"
 
 # trigger generating different categories of pages - takes a long time
 authoropt = true
-journalopt = true
+journalopt = false
 keywordopt = true
 #######################################################################
 
