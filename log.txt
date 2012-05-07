@@ -1,8 +1,1 @@
-Started bibtex-batch on 2012-02-23 21:11:45 -0500
-Started bibtex-batch on 2012-02-23 21:15:20 -0500
-Started bibtex-batch on 2012-02-23 21:16:18 -0500
-Started bibtex-batch on 2012-02-23 21:17:35 -0500
-Started bibtex-batch on 2012-03-04 23:44:02 -0500
-Started bibtex-batch on 2012-04-17 14:13:00 -0400
-Started bibtex-batch on 2012-05-01 00:00:54 -0400
-Started bibtex-batch on 2012-05-01 00:04:09 -0400
+Started bibtex-batch on 2012-05-03 00:34:24 -0400

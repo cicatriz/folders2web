@@ -199,7 +199,7 @@ authors.each do |axx, pubs|
   sort_pubs(pubs).each do |i|
     item = b[i]
     if File.exists?("#{Wiki_path}/data/pages/ref/#{item.key}.txt")
-      out1 << "| [#:ref:#{item.key}|#{item.key}] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
+      out1 << "| [[ref:#{item.key}|#{item.key}]] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
     else
       out2 << "| #{item.key} | #{item[:cit]}|#{pdfpath(item.key)}|\n"
     end
@@ -216,9 +216,9 @@ File.open("#{Wiki_path}/data/pages/abib/start.txt","w") do |f|
   authorlisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
     apage = ''
     if File.exists?("#{Wiki_path}/data/pages/a/#{ax[0]}.txt")
-      apage = "[#:a:#{ax[0]}|author page]"
+      apage = "[[a:#{ax[0]}|author page]]"
     end
-    f << "| [##{ax[0]}|#{ax[1]}] | #{apage} |#{ax[2]}|\n"
+    f << "| [[#{ax[0]}|#{ax[1]}]] | #{apage} |#{ax[2]}|\n"
   end
 end
 end
@@ -238,7 +238,7 @@ if keywordopt
     sort_pubs(pubs).each do |i|
       item = b[i]
       if File.exists?("#{Wiki_path}/data/pages/ref/#{item.key}.txt")
-        out1 << "| [#:ref:#{item.key}|#{item.key}] | #{item[:cit]}| #{pdfpath(item.key)} |\n"
+        out1 << "| [[ref:#{item.key}|#{item.key}]] | #{item[:cit]}| #{pdfpath(item.key)} |\n"
       else
         out2 << "| #{item.key} | #{item[:cit]} | #{pdfpath(item.key)}|\n"
       end
@@ -253,7 +253,7 @@ if keywordopt
   File.open("#{Wiki_path}/data/pages/kbib/start.txt","w") do |f|
     f << "h1. List of publication keywords\n\n"
     keywordslisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
-      f << "|[##{ax[0]}|#{ax[1]}]|#{ax[2]}|\n"
+      f << "|[[#{ax[0]}|#{ax[1]}]]|#{ax[2]}|\n"
     end
   end
   puts "Finished (#{Time.now - timetmp} s.)"
@@ -279,7 +279,7 @@ if journalopt
     sort_pubs(pubs).each do |i|
       item = b[i]
       if File.exists?("#{Wiki_path}/data/pages/ref/#{item.key}.txt")
-        out1 << "| [#:ref:#{item.key}|#{item.key}] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
+        out1 << "| [[ref:#{item.key}|#{item.key}]] | #{item[:cit]}|#{pdfpath(item.key)}|\n"
       else
         out2 << "| #{item.key} | #{item[:cit]}|#{pdfpath(item.key)}|\n"
       end
@@ -296,9 +296,9 @@ if journalopt
     authorlisted.sort {|x,y| y[2].to_i <=> x[2].to_i}.each do |ax|
       apage = ''
       if File.exists?("#{Wiki_path}/data/pages/a/#{ax[0]}.txt")
-        apage = "[#:a:#{ax[0]}|author page]"
+        apage = "[[:a:#{ax[0]}|author page]]"
       end
-      f << "| [##{ax[0]}|#{ax[1]}] | #{apage} |#{ax[2]}|\n"
+      f << "| [[#{ax[0]}|#{ax[1]}]] | #{apage} |#{ax[2]}|\n"
     end
     puts "Finished (#{Time.now - timetmp} s.)"
   end
