@@ -1,0 +1,114 @@
+
+$(document).ready(function() {
+
+  //$('table').hide();
+
+  var rows = $('#recent-kw tr');
+  var categories = [];
+  var articles = [];
+  var recent = [];
+  for (var i=1; i<rows.length; i++) {
+    var el = $(rows[i]);
+    categories.push($(el.find('td')[0]).text());
+    articles.push(parseInt($(el.find('td')[1]).text())-parseInt($(el.find('td')[2]).text()));
+    recent.push(parseInt($(el.find('td')[2]).text()));
+
+  }
+
+  chart = new Highcharts.Chart({
+    chart : {
+             renderTo: 'recent-kw-chart',
+             type: 'bar',
+             height: 500,
+             width: 500
+    },
+    title: {
+             text: 'recent keywords'
+    },
+    xAxis: {
+             categories: categories,
+             title: {
+                     text: null
+             }
+    },
+plotOptions: {
+  bar: {
+    shadow: false,
+    stacking: true
+  }},
+  series: [{ name: 'all articles', data: articles }, { name: 'recently read', data: recent }]
+  });
+
+  rows = $('#popular-kw tr');
+  categories = [];
+  articles = [];
+  recent = [];
+  for (var i=1; i<rows.length; i++) {
+    var el = $(rows[i]);
+    categories.push($(el.find('td')[0]).text());
+    articles.push(parseInt($(el.find('td')[1]).text())-parseInt($(el.find('td')[2]).text()));
+    recent.push(parseInt($(el.find('td')[2]).text()));
+
+  }
+
+  chart2 = new Highcharts.Chart({
+    chart : {
+             renderTo: 'popular-kw-chart',
+             type: 'bar',
+             height: 500,
+             width: 500
+    },
+    title: {
+             text: 'popular keywords'
+    },
+    xAxis: {
+             categories: categories,
+             title: {
+                     text: null
+             }
+    },
+plotOptions: {
+  bar: {
+    shadow: false,
+    stacking: true
+  }},
+  series: [{ name: 'all articles', data: articles }, { name: 'recently read', data: recent }]
+  });
+});
+</script>
+
+<div id="recent-kw-chart"></div>
+
+<table id="recent-kw">
+  <tr>
+    <th>Keyword</th>
+    <th>Articles</th>
+    <th>Recently edited articles</th>
+  </tr>
+
+  <% keywords.sort_by { |kw, kw_data| kw_data[:last_edit] }.reverse[0..20].each do |kw, kw_data| %> 
+    <tr>
+      <td><%= kw %></td>
+      <td><%= kw_data[:articles].count %></td>
+      <td><%= kw_data[:recent_articles].count %></td>
+    </tr>
+  <% end %>
+</table>
+
+<div id="popular-kw-chart"></div>
+<table id="popular-kw">
+  <tr>
+    <th>Keyword</th>
+    <th>Articles</th>
+    <th>Recently edited articles</th>
+  </tr>
+
+  <% keywords.sort_by { |kw, kw_data| kw_data[:articles].count }.reverse[0..20].each do |kw, kw_data| %> 
+    <tr>
+      <td><%= kw %></td>
+      <td><%= kw_data[:articles].count %></td>
+      <td><%= kw_data[:recent_articles].count %></td>
+    </tr>
+  <% end %>
+</table>
+
